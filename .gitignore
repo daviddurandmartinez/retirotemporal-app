@@ -1,0 +1,3 @@
+# Streamlit secrets file (Contiene claves API, contraseñas, etc.)
+.streamlit/secrets.toml
+__pycache__/
