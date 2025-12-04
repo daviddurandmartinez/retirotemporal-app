@@ -1,5 +1,5 @@
-openpyxl
 Pillow
+openpyxl
 altair<5
 streamlit
 pandas
