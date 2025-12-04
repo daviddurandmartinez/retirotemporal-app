@@ -1,22 +1,18 @@
 import streamlit as st
 import sys
+from decouple import config
 
 def get_sql_server_config():
     """
     Retorna la configuración de la base de datos cargada desde st.secrets['database'].
     """
     try:
-        # La clave 'database' debe coincidir con la sección en .streamlit/secrets.toml
-        db_config = st.secrets["database"]
-        
-        # Mapeo de keys de .toml (snake_case) a las keys internas deseadas (UPPERCASE)
-        # Usamos .get() por si faltan campos, pero si el resultado es None, fallará la conexión
         return {
-            "DRIVER": db_config.get("DRIVER"),
-            "SERVER": db_config.get("SERVER"),
-            "USER": db_config.get("USER"),    
-            "PASSWORD": db_config.get("PASSWORD"),
-            "DATABASE": db_config.get("DATABASE")
+            "DRIVER": config("DRIVER"),
+            "SERVER": config("SERVER"),
+            "USER": config("USER"),    
+            "PASSWORD": config("PASSWORD"),
+            "DATABASE": config("DATABASE")
         }
     except Exception as e:
         if 'streamlit' in sys.modules and st.runtime.exists(): # Esto asegura que si la sección [database] no existe, se muestre un error claro en Streamlit.

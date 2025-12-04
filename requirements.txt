@@ -8,3 +8,5 @@ openpyxl
 Pillow 
 pyodbc
 xlsxwriter
+python-dotenv
+python-decouple
