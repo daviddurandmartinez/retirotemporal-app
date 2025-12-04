@@ -3,9 +3,6 @@ import sys
 from decouple import config
 
 def get_sql_server_config():
-    """
-    Retorna la configuración de la base de datos cargada desde st.secrets['database'].
-    """
     try:
         return {
             "DRIVER": config("DRIVER"),
@@ -16,7 +13,7 @@ def get_sql_server_config():
         }
     except Exception as e:
         if 'streamlit' in sys.modules and st.runtime.exists(): # Esto asegura que si la sección [database] no existe, se muestre un error claro en Streamlit.
-            st.error(f"Error al cargar la sección [database] de secrets.toml: {e}")
+            st.error(f"Error al cargar la sección [database]: {e}")
         return None
     
 # Cargar la configuración principal
