@@ -1,6 +1,10 @@
+openpyxl
+Pillow
+altair<5
 streamlit
 pandas
 sqlalchemy
 openpyxl
-Pillow
-altair<5
+Pillow 
+pyodbc
+xlsxwriter
