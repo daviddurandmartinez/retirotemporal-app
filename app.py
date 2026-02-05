@@ -6,6 +6,7 @@ from database_connector import create_sqlalchemy_engine, run_upsert_process, fet
 # Importar TARGET_TABLE y KEY_COLUMN directamente de config
 from config import TARGET_TABLE, KEY_COLUMN
 from PIL import Image
+from streamlit_option_menu import option_menu
 
 def main():
 
@@ -28,7 +29,11 @@ def main():
     )
 
     st.title("Sincronización de Datos")
-    st.sidebar.header("Opciones de Archivo")
+    ##st.sidebar.header("Opciones de Archivo")
+    with st.sidebar:
+        selected = option_menu("Menu Principal", ["Home"], 
+            icons=['house', 'gear'], menu_icon="cast", default_index=1)
+        selected
 
     ############################################
     ## CARGA DE ARCHIVO EXCEL PARA SQL SERVER ##

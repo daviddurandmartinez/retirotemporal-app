@@ -10,3 +10,4 @@ pyodbc
 xlsxwriter
 python-dotenv
 python-decouple
+streamlit-option-menu
