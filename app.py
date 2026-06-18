@@ -7,6 +7,8 @@ from database_connector import create_sqlalchemy_engine, run_upsert_process, fet
 from config import TARGET_TABLE, KEY_COLUMN
 from PIL import Image
 from streamlit_option_menu import option_menu
+import logging
+import asyncio
 
 def main():
 
@@ -32,7 +34,7 @@ def main():
     ##st.sidebar.header("Opciones de Archivo")
     with st.sidebar:
         selected = option_menu("Menu Principal", ["Home"], 
-            icons=['house', 'gear'], menu_icon="cast", default_index=1)
+            icons=['house'], menu_icon="cast", default_index=0)
         selected
 
     ############################################
@@ -110,6 +112,9 @@ def main():
             )
         else:
             st.error(f"Fallo al descargar los datos: {message}")
+
+# Silenciar los mensajes ruidosos de conexiones perdidas en asyncio
+logging.getLogger("asyncio").setLevel(logging.CRITICAL)
 
 if __name__ == "__main__":
     main()

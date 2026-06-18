@@ -2,6 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 import urllib # Necesario para codificar la contraseña en la URI de SQLAlchemy
 from config import SQL_SERVER_CONFIG, TARGET_TABLE, KEY_COLUMN
+import warnings
 
 #############################################
 ## CONEXION A SQL SERVER USANDO SQLALCHEMY ##
@@ -24,12 +25,12 @@ def create_sqlalchemy_engine():
     # Construir la cadena de conexión de SQLAlchemy para SQL Server usando pyodbc
     conn_str = (
         f'mssql+pyodbc://{username}:{password}@{server}/{database}?'
-        f'driver={driver_name}'
+        f'driver={driver_name}&TrustServerCertificate=yes'
     )
     
     try:
         # El pool_recycle es una buena práctica para conexiones de larga duración
-        engine = create_engine(conn_str, pool_recycle=3600)
+        engine = create_engine(conn_str, pool_recycle=3600, pool_pre_ping=True)
         return engine
     except Exception as e:
         print(f"Error creando el motor de SQLAlchemy: {e}")
@@ -106,22 +107,23 @@ def run_upsert_process(df_excel: pd.DataFrame, engine):
     try:
         # 'engine.begin()' inicia una transacción, asegurando el commit/rollback automático y utiliza una conexión del pool.
         with engine.begin() as connection:
-            
-            # PASO 1: Cargar el DataFrame a la tabla temporal
-            df_excel.to_sql(
-                name=temp_table_name, 
-                con=connection, 
-                if_exists='replace', 
-                index=False
-                #dtype={col: df_excel[col].dtype.name for col in df_excel.columns}
-            ) 
-            
-            # PASO 2: Generar y ejecutar la consulta MERGE
-            merge_query = generate_merge_query(df_excel, table_name, id_column) 
-            connection.execute(text(merge_query))
-            
-            # FIX: Retornar la tupla (bool, str) para el desempaquetado correcto en app.py
-            return True, f"Proceso completado exitosamente"
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=".*is not found exactly as such in the database.*")
+                # PASO 1: Cargar el DataFrame a la tabla temporal
+                df_excel.to_sql(
+                    name=temp_table_name, 
+                    con=connection, 
+                    if_exists='replace', 
+                    index=False
+                    #dtype={col: df_excel[col].dtype.name for col in df_excel.columns}
+                ) 
+                
+                # PASO 2: Generar y ejecutar la consulta MERGE
+                merge_query = generate_merge_query(df_excel, table_name, id_column) 
+                connection.execute(text(merge_query))
+                
+                # FIX: Retornar la tupla (bool, str) para el desempaquetado correcto en app.py
+                return True, f"Proceso completado exitosamente"
 
     except Exception as e:
         # FIX: Retornar la tupla (bool, str) para el desempaquetado correcto en app.py
